@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.at.R
 import com.example.at.models.DeviceInfoModel
+import com.example.at.views.ui.MainActivity
 import com.example.at.views.ui.SelectDeviceFragment
 
 
@@ -40,7 +41,8 @@ class DeviceListAdapter(private val context: SelectDeviceFragment, private val d
 
         // When a device is selected
         itemHolder.linearLayout.setOnClickListener {
-
+            (context.activity as MainActivity).connectToDevice(deviceInfoModel.getDeviceInfoName()!!,
+            deviceInfoModel.getDeviceInfoHardwareAddress()!!)
         }
     }
 

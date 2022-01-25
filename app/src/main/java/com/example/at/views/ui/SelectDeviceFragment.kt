@@ -30,8 +30,8 @@ class SelectDeviceFragment : Fragment() {
         return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onStart() {
+        super.onStart()
 
         // Bluetooth Setup
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -63,5 +63,12 @@ class SelectDeviceFragment : Fragment() {
             snackbar.setAction("OK") { }
             snackbar.show()
         }
+        val deviceInfoModel = DeviceInfoModel("name", "address")
+        deviceList.add(deviceInfoModel)
+        val recyclerView: RecyclerView = binding.recyclerViewDevice
+        recyclerView.layoutManager = LinearLayoutManager(this.context)
+        val deviceListAdapter = DeviceListAdapter(this, deviceList)
+        recyclerView.adapter = deviceListAdapter
+        recyclerView.itemAnimator = DefaultItemAnimator()
     }
 }

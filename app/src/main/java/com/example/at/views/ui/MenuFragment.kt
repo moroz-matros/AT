@@ -31,5 +31,9 @@ class MenuFragment : Fragment() {
             val f = SettingsFragment()
             (activity as MainActivity?)!!.replaceFragment(f)
         }
+        binding.startButton.setOnClickListener {
+            val f = SelectDeviceFragment()
+            (activity as MainActivity?)!!.replaceFragment(f)
+        }
     }
 }
