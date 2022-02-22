@@ -41,8 +41,8 @@ class DeviceListAdapter(private val context: SelectDeviceFragment, private val d
 
         // When a device is selected
         itemHolder.linearLayout.setOnClickListener {
-            (context.activity as MainActivity).connectToDevice(deviceInfoModel.getDeviceInfoName()!!,
-            deviceInfoModel.getDeviceInfoHardwareAddress()!!)
+            (context.activity as MainActivity).connectToDevice(deviceInfoModel.deviceName!!,
+            deviceInfoModel.deviceHardwareAddress!!)
         }
     }
 

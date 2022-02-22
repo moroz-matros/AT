@@ -33,6 +33,8 @@ class SelectDeviceFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        setUpListeners()
+
         // Bluetooth Setup
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
@@ -70,5 +72,12 @@ class SelectDeviceFragment : Fragment() {
         val deviceListAdapter = DeviceListAdapter(this, deviceList)
         recyclerView.adapter = deviceListAdapter
         recyclerView.itemAnimator = DefaultItemAnimator()
+    }
+
+    private fun setUpListeners(){
+        binding.buttonNext.setOnClickListener {
+            val f = TrainingSettingsFragment()
+            (activity as MainActivity?)!!.replaceFragment(f)
+        }
     }
 }

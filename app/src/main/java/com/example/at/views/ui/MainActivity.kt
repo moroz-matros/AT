@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,15 +17,18 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.at.models.Store
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.charset.Charset
 
 
 class MainActivity : AppCompatActivity(){
     var mmSocket: BluetoothSocket? = null
     var connectedThread: ConnectedThread? = null
     var createConnectThread: CreateConnectThread? = null
+    val c: Context = this
 
    val CONNECTING_STATUS = 1 // used in bluetooth handler to identify message status
    val MESSAGE_READ = 2 // used in bluetooth handler to identify message update
@@ -39,11 +43,29 @@ class MainActivity : AppCompatActivity(){
 
         setContentView(R.layout.activity_main)
 
+
         val f = MenuFragment()
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.container, f)
             .commit()
+/*
+
+        val f = TrainingSettingsFragment()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.container, f)
+            .commit()
+
+
+
+        val f = TrainingFragment()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.container, f)
+            .commit()
+
+         */
 
     }
 
@@ -184,9 +206,12 @@ class MainActivity : AppCompatActivity(){
                      */
                     buffer[bytes] = mmInStream!!.read().toByte()
                     var readMessage: String
-                    if (buffer[bytes] == "\n".toByte()) {
+
+                    if (buffer[bytes].toInt().toChar() == '\n') {
                         readMessage = String(buffer, 0, bytes)
                         Log.e("Arduino Message", readMessage)
+                        //Toast.makeText(c, "got $readMessage", Toast.LENGTH_SHORT).show()
+                        Store.ArduinoMsg = readMessage
                         handler.obtainMessage(MESSAGE_READ, readMessage)
                             .sendToTarget()
                         bytes = 0
@@ -202,7 +227,9 @@ class MainActivity : AppCompatActivity(){
 
         /* Call this from the main activity to send data to the remote device */
         fun write(input: String) {
-            val bytes = input.toByteArray() //converts entered String into bytes
+            Toast.makeText(c, input, Toast.LENGTH_SHORT).show()
+            val charset = Charsets.US_ASCII
+            val bytes = input.toByteArray(charset)//converts entered String into bytes
             try {
                 mmOutStream!!.write(bytes)
             } catch (e: IOException) {

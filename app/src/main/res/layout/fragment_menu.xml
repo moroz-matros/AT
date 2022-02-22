@@ -39,7 +39,10 @@
             android:id="@+id/start_button"
             style="@style/MainPageButtons"
             android:text="@string/start_training"/>
-
+        <Button
+            android:id="@+id/button_history"
+            style="@style/MainPageButtons"
+            android:text="@string/your_trainings"/>
         <Button
             android:id="@+id/settings_button"
             style="@style/MainPageButtons"
