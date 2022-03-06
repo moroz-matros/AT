@@ -279,7 +279,7 @@ class TrainingSettingsFragment : Fragment() {
                                 "and try again", Toast.LENGTH_LONG
                     ).show()
                 } else { */
-                    (activity as MainActivity?)!!.connectedThread!!.write("1")
+
                     val f = TrainingFragment()
                     (activity as MainActivity).replaceFragment(f)
                 //}

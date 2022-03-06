@@ -43,12 +43,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:text="3"
             android:hint="10"
             android:textAlignment="center"
             android:inputType="numberDecimal"
             />
 
         <EditText
+            android:text="4"
             android:id="@+id/col"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

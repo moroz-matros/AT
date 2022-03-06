@@ -43,19 +43,14 @@ class MainActivity : AppCompatActivity(){
 
         setContentView(R.layout.activity_main)
 
-
+/*
         val f = MenuFragment()
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.container, f)
             .commit()
-/*
+*/
 
-        val f = TrainingSettingsFragment()
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.container, f)
-            .commit()
 
 
 
@@ -65,7 +60,7 @@ class MainActivity : AppCompatActivity(){
             .replace(R.id.container, f)
             .commit()
 
-         */
+
 
     }
 
@@ -208,6 +203,8 @@ class MainActivity : AppCompatActivity(){
                     var readMessage: String
 
                     if (buffer[bytes].toInt().toChar() == '\n') {
+
+                        //readMessage = buffer.toString(Charsets.UTF_8)
                         readMessage = String(buffer, 0, bytes)
                         Log.e("Arduino Message", readMessage)
                         //Toast.makeText(c, "got $readMessage", Toast.LENGTH_SHORT).show()

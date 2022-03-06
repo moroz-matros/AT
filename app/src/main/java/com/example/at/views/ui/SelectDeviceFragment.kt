@@ -65,8 +65,6 @@ class SelectDeviceFragment : Fragment() {
             snackbar.setAction("OK") { }
             snackbar.show()
         }
-        val deviceInfoModel = DeviceInfoModel("name", "address")
-        deviceList.add(deviceInfoModel)
         val recyclerView: RecyclerView = binding.recyclerViewDevice
         recyclerView.layoutManager = LinearLayoutManager(this.context)
         val deviceListAdapter = DeviceListAdapter(this, deviceList)
