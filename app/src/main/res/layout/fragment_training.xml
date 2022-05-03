@@ -44,9 +44,10 @@
             android:text="Total hits:"
             />
         <TextView
+            android:id="@+id/text_view_total"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="100"
+            tools:text="0"
             android:textSize="30sp"/>
     </LinearLayout>
     <LinearLayout
@@ -65,7 +66,7 @@
             android:id="@+id/text_view_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="100"
+            tools:text="0"
             android:textSize="30sp"/>
     </LinearLayout>
     <LinearLayout
@@ -84,22 +85,30 @@
             android:id="@+id/text_view_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="100"
+            tools:text="0"
             android:textSize="30sp"/>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/button_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        app:layout_constraintTop_toBottomOf="@id/linear_layout_out"/>
     <Button
         android:id="@+id/button_pause"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="PAUSE"
-        app:layout_constraintTop_toBottomOf="@id/linear_layout_out"/>
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/button_start"/>
     <Button
-        android:id="@+id/button_send"
+        android:id="@+id/button_resume"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="send"
-        app:layout_constraintBottom_toTopOf="@id/button_finish"/>
+        android:text="Resume"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/linear_layout_out"/>
     <Button
         android:id="@+id/button_finish"
         android:layout_width="match_parent"

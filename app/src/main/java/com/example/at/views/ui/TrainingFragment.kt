@@ -1,5 +1,6 @@
 package com.example.at.views.ui
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.LayoutInflater
@@ -8,6 +9,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
 import android.util.Log
+import android.widget.Toast
+import com.example.at.R
 import com.example.at.databinding.FragmentTrainingBinding
 import com.example.at.models.AppDatabase
 import com.example.at.models.SecondTypeMsg
@@ -26,25 +29,28 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 
+
+
+
+
 class TrainingFragment : Fragment() {
     private var _binding: FragmentTrainingBinding? = null
     private val binding get() = _binding
+    private var mediaPlayer: MediaPlayer? = null
 
-    private val onPause = false
+    private var onPause = true
+    private var flag = true
 
     private val mutexTraining = Mutex()
     private val mutexDraw = Mutex()
 
     private var scrollToEnd = false
     private var count = 0.0
-    private var maxX = 30.0
+    private var maxX = 60.0
     private var faults = 0
 
 
     private var points: PointsGraphSeries<DataPoint>? =  PointsGraphSeries<DataPoint>()
-
-
-
 
         override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,62 +63,66 @@ class TrainingFragment : Fragment() {
     }
 
     private suspend fun observeMessages(){
-        while (!onPause){
-            if (Store.trainingMsg != null) {
-                Log.d("AAAA", "got msg")
-                var msg: SecondTypeMsg
-                mutexTraining.withLock {
-                    msg = Store.parseSecondMsg(Store.trainingMsg!!)
-                    Store.trainingMsg = null
-                }
-                if (count >= maxX){
-                    scrollToEnd = true
-                }
-                var y = 1.0
-                if (msg.result == "out") {
-                    y = -1.0
-                    Store.currentTraining!!.hitsOut += 1
-                    faults += 1
-                    if (faults >= Store.currentTraining!!.maxErrors){
-                        Store.currentTraining!!.concentrationFaults += 1
+        while (flag){
+            if (!onPause) {
+                if (Store.ArduinoMsg != null) {
+                    Log.d("AAAA", "got msg")
+                    var msg: SecondTypeMsg
+                    mutexTraining.withLock {
+                        msg = Store.parseSecondMsg(Store.ArduinoMsg!!)
+                        Store.ArduinoMsg = null
+                    }
+                    count = (System.currentTimeMillis() / 1000 - Store.currentTraining.timeStart).toDouble()
+                    if (count >= maxX){
+                        scrollToEnd = true
+                    }
+                    var y = 1.0
+                    if (msg.result == "out") {
+                        y = -1.0
+                        Store.currentTraining!!.hitsOut += 1
+                        //binding!!.textViewOut.text = Store.currentTraining!!.hitsOut.toString()
+                        (context as MainActivity).runOnUiThread {
+                            binding!!.textViewOut.text = Store.currentTraining!!.hitsOut.toString()
+                        }
+                        faults += 1
+                        if (faults >= Store.currentTraining!!.maxErrors){
+                            Store.currentTraining!!.concentrationFaults += 1
+                            faults = 0
+                        }
+                    } else {
+                        Store.currentTraining!!.hitsIn += 1
+                        (context as MainActivity).runOnUiThread {
+                            binding!!.textViewIn.text = Store.currentTraining!!.hitsIn.toString()
+                        }
                         faults = 0
                     }
-                } else {
-                    Store.currentTraining!!.hitsIn += 1
-                    faults = 0
+                    if (faults >= Store.currentTraining.maxErrors) {
+                        faults = 0
+                        mediaPlayer!!.start()
+                    }
+                    Store.currentTraining!!.hits.add(DataPoint(count, y))
+                    points!!.appendData(DataPoint(count, y), scrollToEnd, 1000)
+                    (context as MainActivity).runOnUiThread {
+                        binding!!.textViewTotal.text =
+                            (Store.currentTraining!!.hitsOut + Store.currentTraining!!.hitsOut).toString()
+                        binding!!.graph.addSeries(points)
+                    }
+                    //
                 }
-                Store.currentTraining!!.hits.add(DataPoint(count, y))
-                points!!.appendData(DataPoint(count, y), scrollToEnd, 1000)
-                binding!!.graph.addSeries(points)
-                count +=10
             }
+
         }
     }
 
-    private suspend fun sendIn(){
-        mutexTraining.withLock {
-            Store.trainingMsg = "in 10 10 888"
-        }
-    }
-
-    private suspend fun sendOut(){
-        mutexTraining.withLock {
-            Store.trainingMsg = "out 10 10 888"
-        }
-    }
-
-    private fun finishTraining(){
-
-    }
 
     override fun onStart() {
         super.onStart()
         setUpBindings()
+        mediaPlayer = MediaPlayer.create(context, R.raw.beep)
 
         GlobalScope.launch {
             observeMessages()
         }
-
 
         Store.currentTraining!!.maxErrors = 3
         points!!.size = 10f
@@ -126,38 +136,44 @@ class TrainingFragment : Fragment() {
         binding!!.graph.viewport.isYAxisBoundsManual = true
         binding!!.graph.viewport.setMaxY(1.0)
         binding!!.graph.viewport.setMinY(-1.0)
-
-
-
-
-        //(activity as MainActivity?)!!.connectedThread!!.write("1")
     }
 
     private fun setUpBindings(){
-        /*
-        binding!!.buttonSend.setOnClickListener {
+        binding!!.buttonStart.setOnClickListener {
+            Toast.makeText(context, "Start init", Toast.LENGTH_SHORT).show()
+            onPause = false
+            Log.d("QQQQQ", System.currentTimeMillis().toString())
+            Store.currentTraining.timeStart = System.currentTimeMillis() / 1000
             (activity as MainActivity).connectedThread!!.write("1")
+            binding!!.buttonStart.visibility = View.GONE
+            binding!!.buttonPause.visibility = View.VISIBLE
         }
 
-         */
+        binding!!.buttonFinish.setOnClickListener {
+            (activity as MainActivity).connectedThread!!.write("4")
+        }
+
+        binding!!.buttonPause.setOnClickListener {
+            (activity as MainActivity).connectedThread!!.write("2")
+            onPause = true
+            binding!!.buttonPause.visibility = View.GONE
+            binding!!.buttonResume.visibility = View.VISIBLE
+        }
+        binding!!.buttonResume.setOnClickListener {
+            (activity as MainActivity).connectedThread!!.write("3")
+            onPause = false
+            binding!!.buttonPause.visibility = View.VISIBLE
+            binding!!.buttonResume.visibility = View.GONE
+        }
+
+
+
+        binding!!.buttonFinish.setOnClickListener {
+            (activity as MainActivity).connectedThread!!.write("4")
+            flag = false
+        }
+
         /*
-        binding!!.buttonFinish.setOnClickListener {
-            (activity as MainActivity).connectedThread!!.write("0")
-        }
-
-         */
-        binding!!.buttonSend.setOnClickListener {
-            GlobalScope.launch {
-                sendIn()
-            }
-        }
-
-        binding!!.buttonFinish.setOnClickListener {
-            GlobalScope.launch {
-                sendOut()
-            }
-        }
-
         binding!!.buttonPause.setOnClickListener {
             Store.currentTraining!!.x = 10
             Store.currentTraining!!.y = 10
@@ -179,6 +195,8 @@ class TrainingFragment : Fragment() {
             }
 
         }
+
+         */
     }
 
 

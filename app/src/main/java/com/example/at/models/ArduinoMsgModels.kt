@@ -15,7 +15,6 @@ data class SecondTypeMsg(
     var result: String = "",
     var x: Int = 0,
     var y: Int = 0,
-    var power: Int = 0,
     var time: Int = 0
 )
 

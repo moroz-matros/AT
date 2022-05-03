@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".views.ui.TrainingFragment">
+    tools:context=".views.ui.TrainingOneFragment">
 
     <TextView
         android:id="@+id/text_view_title"
@@ -33,9 +33,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="30sp"
-            android:text="Total hits:"
+            android:text="Total hits: "
             />
         <TextView
+            android:id="@+id/text_total_hits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="100"
@@ -48,13 +49,14 @@
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/linear_layout_total">
         <TextView
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="30sp"
             android:text="In:"
             />
         <TextView
-            android:id="@+id/text_view_in"
+            android:id="@+id/text_hits_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="100"
@@ -73,7 +75,7 @@
             android:text="Out:"
             />
         <TextView
-            android:id="@+id/text_view_out"
+            android:id="@+id/text_hits_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="100"

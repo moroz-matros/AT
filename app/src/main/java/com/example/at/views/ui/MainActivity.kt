@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.provider.Settings
 import com.example.at.R
 import android.util.DisplayMetrics
 import android.util.Log
@@ -18,6 +19,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.at.models.Store
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -43,25 +46,24 @@ class MainActivity : AppCompatActivity(){
 
         setContentView(R.layout.activity_main)
 
-/*
+
         val f = MenuFragment()
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.container, f)
             .commit()
-*/
 
 
 
+
+        /*
 
         val f = TrainingFragment()
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.container, f)
             .commit()
-
-
-
+         */
     }
 
     fun replaceFragment(f: Fragment) {
@@ -206,9 +208,10 @@ class MainActivity : AppCompatActivity(){
 
                         //readMessage = buffer.toString(Charsets.UTF_8)
                         readMessage = String(buffer, 0, bytes)
-                        Log.e("Arduino Message", readMessage)
+                        Log.d("Arduino Message", readMessage)
                         //Toast.makeText(c, "got $readMessage", Toast.LENGTH_SHORT).show()
                         Store.ArduinoMsg = readMessage
+                       // GlobalScope.launch { storeMsg(readMessage) }
                         handler.obtainMessage(MESSAGE_READ, readMessage)
                             .sendToTarget()
                         bytes = 0
@@ -220,6 +223,12 @@ class MainActivity : AppCompatActivity(){
                     break
                 }
             }
+        }
+        suspend fun storeMsg (msg: String) {
+            Store.arduinoMsgLock.lock()
+            Log.d("read", msg)// Read message from Arduino
+            Store.ArduinoMsg = msg
+            Store.arduinoMsgLock.unlock()
         }
 
         /* Call this from the main activity to send data to the remote device */

@@ -18,12 +18,16 @@ import android.graphics.Paint
 import android.widget.TextView
 
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import com.example.at.models.Store
 import com.example.at.models.TrainingSettingsModel
+import com.example.at.models.ZeroTypeMsg
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class TrainingSettingsFragment : Fragment() {
@@ -35,10 +39,10 @@ class TrainingSettingsFragment : Fragment() {
     private var bitmap: Bitmap? = null
     private var canvas: Canvas? = null
 
-    private val maxNoise: Int = 1000
+    private val maxNoise: Int = 600
 
     private val linesX: Int = 16
-    private val linesY: Int = 15
+    private val linesY: Int = 16
     private val lineWidth: Float = 10.toFloat()
     private val linePadding: Float = 40.toFloat()
     private val startOffset: Float = 30.toFloat()
@@ -152,7 +156,7 @@ class TrainingSettingsFragment : Fragment() {
                 if (currentY < 0) {
                     offset = 0
                 }
-                x2 = width.toFloat() - endOffset - (linesY - offset+1) * linePadding
+                x2 = width.toFloat() - endOffset - (linesY - offset) * linePadding
                 y2 = startOffset + linePadding * num
             }
 
@@ -220,7 +224,8 @@ class TrainingSettingsFragment : Fragment() {
                     drawLineFull(currentY, true, passiveColor)
                     drawLine(currentY, true, activeColor)
                 } else if (binding.row.text.toString()
-                        .toInt() != 0){
+                        .toInt() != 0
+                ) {
                     binding.errorText.visibility = View.VISIBLE
                 } else {
                     currentX = -1
@@ -242,7 +247,8 @@ class TrainingSettingsFragment : Fragment() {
                     drawLineFull(currentX, false, passiveColor)
                     drawLine(currentX, false, activeColor)
                 } else if (binding.col.text.toString()
-                        .toInt() != 0){
+                        .toInt() != 0
+                ) {
                     binding.errorText.visibility = View.VISIBLE
                 } else {
                     currentY = -1
@@ -254,38 +260,43 @@ class TrainingSettingsFragment : Fragment() {
                 and (binding.col.text.toString() != "")
             ) {
                 val model = TrainingSettingsModel(
-                    currentX, currentY,
+                    16-currentX, currentY,
                     binding.seekbarErrors.progress
                 )
                 Store.currentSettings = model
-                Toast.makeText(activity,"called 2", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "called 2", Toast.LENGTH_SHORT).show()
                 val msg: String = model.convertToString() + '\n'
                 (activity as MainActivity?)!!.connectedThread!!.write(msg)
-
-                /*
-                while (Store.ArduinoMsg == null) {
-
+                GlobalScope.launch {
+                    nextButtonClickListener()
                 }
-
-                // should receive message like "0 noise",
-                // where 0 is state type
-                // if noise is a big value, should repeat initialization
-                val zeroMsg = Store.parseZeroMsg(Store.ArduinoMsg!!)
-                Store.ArduinoMsg = null
-                if (zeroMsg.noise > maxNoise) {
-                    Toast.makeText(
-                        (activity as MainActivity),
-                        "noise value is ${zeroMsg.noise}, please, correct the mat " +
-                                "and try again", Toast.LENGTH_LONG
-                    ).show()
-                } else { */
-
-                    val f = TrainingFragment()
-                    (activity as MainActivity).replaceFragment(f)
-                //}
             }
-        }
 
+        }
+    }
+    private suspend fun nextButtonClickListener() {
+        while (Store.ArduinoMsg == null) {
+            //Store.arduinoMsgLock.lock()
+            Log.d("ardmsg", "null")
+            //Store.arduinoMsgLock.unlock()
+        }
+        // should receive message like "0 noise",
+        // where 0 is state type
+        // if noise is a big value, should repeat initialization
+        val zeroMsg = Store.parseZeroMsg(Store.ArduinoMsg!!)
+        Log.d("zero", zeroMsg.toString())
+        Store.ArduinoMsg = null
+
+        if (zeroMsg.noise > maxNoise) {
+            Toast.makeText(
+                (activity as MainActivity),
+                "noise value is ${zeroMsg.noise}, please, correct the mat " +
+                        "and try again", Toast.LENGTH_LONG
+            ).show()
+        } else {
+            val f = TrainingFragment()
+            (activity as MainActivity).replaceFragment(f)
+        }
     }
 
 }

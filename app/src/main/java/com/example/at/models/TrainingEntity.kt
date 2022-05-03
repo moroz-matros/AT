@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 class TrainingEntity(
-    var date: Int,
-    var duration: Int,
+    var date: Long,
+    var duration: Long,
     var hitsIn: Int,
     var hitsOut: Int,
     var concentrationFaults: Int,
